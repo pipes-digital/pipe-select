@@ -10,27 +10,28 @@ const pipeSelect = {
 	},
 	// Get selector that uniquely queries element
 	getSingleSelector: function(element, blocked, options) {
-		console.log("single selector");
 		var selectors = this.getAllSelectors(element, options);
 		return selectors[0]; // TODO: What's the best selector to return here, to match only element?
 		
 	},
 	// Get selector that queries elements, but maybe also some more, but never the blocked nodes
 	getMultiSelector: function(elements, blocked, options) {
-		console.log("multi selector");
 		var selectors = [];
 		for (var i=0;i<elements.length;i++) {
 		    selectors.push(this.getAllSelectors(elements[i], options));
 		}
 		selectors = selectors.flat();
 		var validSelectors = selectors.filter(sel => (! this.matches(sel, blocked)));
+        // remove duplicate selectors with some js voodoo:
+		var validSelectors = validSelectors.filter(( t={}, e=>!(t[e]=e in t) ))
 		var optimisticSelectors = validSelectors.filter(sel => this.matchesAll(sel, elements));
 		if (optimisticSelectors.length > 0) {
 			return optimisticSelectors[0]; // TODO: Which one is the best to return here?
 		}
 		// Since there is not one selector that selects all target elements we need to combine our available selectors
         // We just have to grab a combination of selectors that matches all elements
-        // TODO: Make this faster, maybe by pruning unnecessary selectors?
+        // TODO: Either make this faster by testing combinations directly and returning the first that work, or
+        //       make use of having all selectors available and select the best
         var selectorCombinations = this.getAllSubArrays(validSelectors);
         for (var i=0;i<selectorCombinations.length;i++) {
             var selectorCombination = selectorCombinations[i];
@@ -49,7 +50,6 @@ const pipeSelect = {
 	},
     // The set of the sub arrays is the binary representation of the the nth value ranging from 0 to (2^n) - 1.
     // https://softwareengineering.stackexchange.com/a/256156/92420
-    // TODO: Zeige Joss
     getAllSubArrays: function(elements) {
         subarrays = [];
         var n = elements.length;
@@ -87,11 +87,13 @@ const pipeSelect = {
 			// TODO: Don't just use the id here, but a set of selectors that target the parent node. Maybe also the first parental node that has an id?
 			var selectorsWithParent = []
 			for (var i=0;i<selectors.length;i++) {
-				selectorsWithParent.push("#" + element.parentNode.id + " " + selectors[i]);
+				selectorsWithParent.push("#" + element.parentNode.id + " > " + selectors[i]);
 			}
 			selectors = selectors.concat(selectorsWithParent)
 		}
-		selectors.push(element.parentNode.tagName + " " + element.tagName);
+        
+		selectors.push(element.parentNode.tagName + " > " + element.tagName);
+        
 		return selectors;
 	},
 	// return true if selector matches at least one of the element in elements
