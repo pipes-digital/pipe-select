@@ -23,7 +23,8 @@ const pipeSelect = {
 	// Get selector that uniquely queries element
 	getSingleSelector: function(element, blocked, options) {
 		var selectors = this.getAllSelectors(element, options);
-		return selectors[0]; // TODO: What's the best selector to return here, to match only element?
+        var validSelectors = selectors.filter(sel => (! this.matches(sel, blocked)));
+		return validSelectors[0]; // TODO: What's the best selector to return here, to match only element?
 		
 	},
 	// Get selector that queries elements, but maybe also some more, but never the blocked nodes
