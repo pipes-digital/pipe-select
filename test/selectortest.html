@@ -12,11 +12,13 @@
         <li>3</li>
         <li class="abc">4</li>
     </ul>
+    <p>hi, je suis un paragraph</p>
     <ul id="ul2">
         <li>1</li>
         <li>2</li>
         <li>3</li>
         <li class="def">4</li>
+        <li class="def">5</li>
     </ul>
     <ul>
         <li>1</li>
@@ -78,7 +80,7 @@
 			
 			markActive();
 			markBlocked()
-            sel = pipeSelect.select(active, blocked, {ignore: 'style'});
+            sel = pipeSelect.select(active, blocked, {ignore: {classes: ['abc']}});
             console.log(sel);
             elements = document.querySelectorAll(sel);
             for (var i=0;i<elements.length;i++) {

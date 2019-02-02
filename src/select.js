@@ -2,6 +2,18 @@ const pipeSelect = {
 	// Get an array of elements, return selector that covers all of them, but not the elements in blocked
 	// This will not try to create unique selectors always, but generalize them when sound
 	select: function(elements, blocked, options) {
+
+        // Make it possible to just not specify options when calling this, without thinking about
+        // this in the code below
+        if (options == undefined) {
+            options = {};
+        }
+        if (options.ignore == undefined) {
+            options.ignore = {};
+        }
+        if (options.ignore.classes == undefined) {
+            options.ignore.classes = [];
+        }
 		if (elements.length == 1) {
 		    return this.getSingleSelector(elements[0], blocked, options);
 		} else {
@@ -74,11 +86,15 @@ const pipeSelect = {
 		if (element.classList.length > 0) {
 			classSelector = "";
 			for (var i=0;i<element.classList.length;i++) {
-				classSelector+="." + element.classList.item(i);
-				selectors.push("." + element.classList.item(i));
+                if (! (options.ignore.classes.includes(element.classList.item(i)))) {
+				    classSelector+="." + element.classList.item(i);
+				    selectors.push("." + element.classList.item(i));
+                }
 			}
-			selectors.push(classSelector);
-			selectors.push(element.tagName + classSelector);
+            if (classSelector !== '') {
+			    selectors.push(classSelector);
+			    selectors.push(element.tagName + classSelector);
+            }
 		}
 		selectors.push(element.tagName);
 		
