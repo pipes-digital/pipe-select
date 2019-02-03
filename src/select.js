@@ -98,7 +98,13 @@ const pipeSelect = {
             }
 		}
 		selectors.push(element.tagName);
-		
+
+        // nth-of-type detection. This has the potential of selecting exactly this element just by the html structure,
+        // if you do the same for its parent and parent-parents
+        var siblings  = element.parentNode.children
+        siblings = Array.prototype.slice.call(siblings);
+        var n = siblings.filter(x => x.nodeName == element.nodeName).length;
+        selectors.push(element.tagName + ':nth-of-type(' + n + ')');
 		
 		if (element.parentNode.id) {
 			// TODO: Don't just use the id here, but a set of selectors that target the parent node. Maybe also the first parental node that has an id?
